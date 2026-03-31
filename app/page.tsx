@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react'
-import { ReviewResult, Annotation } from '../types/review'
+import { ReviewResult, Annotation, Severity } from '../types/review'
 import InputSelector from '../components/InputSelector'
 import ReviewPanel from '../components/ReviewPanel'
 import CodeEditor from '../components/CodeEditor'
@@ -14,6 +14,21 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [annotations, setAnnotations] = useState<Annotation[]>([])
+  const [visibleSeverities, setVisibleSeverities] = useState<Set<Severity>>(
+    new Set(['critical', 'warning', 'suggestion'])
+  )
+
+  function handleToggleSeverity(severity: Severity) {
+    setVisibleSeverities((prev) => {
+      const next = new Set(prev)
+      if (next.has(severity)) {
+        next.delete(severity)
+      } else {
+        next.add(severity)
+      }
+      return next
+    })
+  }
 
   async function handleCodeReady(
     newCode: string,
@@ -119,7 +134,9 @@ export default function Home() {
                   code={code}
                   onChange={setCode}
                   language={language}
-                  annotations={annotations}
+                  annotations={annotations.filter((a) =>
+                    visibleSeverities.has(a.severity)
+                  )}
                   isLoading={isLoading}
                 />
               </div>
@@ -137,7 +154,12 @@ export default function Home() {
                 </p>
               </div>
             )}
-            <ReviewPanel result={reviewResult} isLoading={isLoading} />
+            <ReviewPanel
+              result={reviewResult}
+              isLoading={isLoading}
+              visibleSeverities={visibleSeverities}
+              onToggleSeverity={handleToggleSeverity}
+            />
           </div>
         </div>
       </main>
