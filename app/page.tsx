@@ -159,6 +159,8 @@ export default function Home() {
               isLoading={isLoading}
               visibleSeverities={visibleSeverities}
               onToggleSeverity={handleToggleSeverity}
+              currentCode={code}
+              currentLanguage={language}
             />
           </div>
         </div>
